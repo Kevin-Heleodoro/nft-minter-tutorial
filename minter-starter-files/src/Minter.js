@@ -1,5 +1,9 @@
 import { useEffect, useState } from 'react';
-import { connectWallet, getCurrentWalletConnected } from './utils/interact';
+import {
+	connectWallet,
+	getCurrentWalletConnected,
+	installMetamask,
+} from './utils/interact';
 
 const Minter = (props) => {
 	//State variables
@@ -13,6 +17,8 @@ const Minter = (props) => {
 		const { address, status } = await getCurrentWalletConnected();
 		setWallet(address);
 		setStatus(status);
+
+		addWalletListener();
 	}, []);
 
 	const connectWalletPressed = async () => {
@@ -24,6 +30,22 @@ const Minter = (props) => {
 	const onMintPressed = async () => {
 		//TODO: implement
 	};
+
+	function addWalletListener() {
+		if (window.ethereum) {
+			window.ethereum.on('accountsChanged', (accounts) => {
+				if (accounts.length > 0) {
+					setWallet(accounts[0]);
+					setStatus('👆🏽 Write a message.');
+				} else {
+					setWallet('');
+					setStatus('Connect to Metamask 🦊');
+				}
+			});
+		} else {
+			installMetamask();
+		}
+	}
 
 	return (
 		<div className='Minter'>

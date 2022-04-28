@@ -50,7 +50,7 @@ export const getCurrentWalletConnected = async () => {
 	}
 };
 
-const installMetamask = () => {
+export const installMetamask = () => {
 	return {
 		address: '',
 		status: (
