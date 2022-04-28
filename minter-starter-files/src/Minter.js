@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import { useEffect, useState } from 'react';
 import {
 	connectWallet,
