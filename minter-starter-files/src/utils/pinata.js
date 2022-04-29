@@ -1,8 +1,6 @@
 require('dotenv').config();
 const axios = require('axios');
 
-console.log(process.env);
-
 const { PINATA_KEY, PINATA_SECRET } = process.env;
 
 export const pinJSONtoIPFS = async (JSONBody) => {

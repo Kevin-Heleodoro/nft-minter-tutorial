@@ -1,3 +1,5 @@
+import { pinJSONtoIPFS } from './pinata';
+
 require('dotenv').config();
 const alchemyKey = process.env.REACT_APP_ALCHEMY_KEY;
 const contractABI = require('../contract-abi.json');
@@ -11,6 +13,53 @@ export const mintNFT = async (url, name, description) => {
 		return {
 			success: false,
 			status: `❗Fill all fields before minting❗`,
+		};
+	}
+
+	// create metadata
+	const metadata = {};
+	metadata.name = name;
+	metadata.image = url;
+	metadata.description = description;
+
+	// pinata call
+	const pinataResponse = await pinJSONtoIPFS(metadata);
+	if (!pinataResponse.success) {
+		return {
+			success: false,
+			status: `Whoops! That didn't work 😢. Issue with tokenURI`,
+		};
+	}
+
+	const tokenURI = pinataResponse.pinataUrl;
+
+	// load smart contract
+	window.contract = await new web3.eth.Contract(contractABI, contractAddress);
+
+	// set up your Eth transaction
+	const transactionParameters = {
+		to: contractAddress,
+		from: window.ethereum.selectedAddress,
+		data: window.contract.methods
+			.mintNFT(window.ethereum.selectedAddress, tokenURI)
+			.encodeABI(),
+	};
+
+	// sign transaction via metamask
+	try {
+		const txHash = await window.ethereum.request({
+			method: 'eth_sendTransaction',
+			params: [transactionParameters],
+		});
+
+		return {
+			success: true,
+			status: `Success! Check it out: https://ropsten.etherscan.io/tx/${txHash}`,
+		};
+	} catch (err) {
+		return {
+			success: false,
+			status: `Fail! ${err.message}`,
 		};
 	}
 };

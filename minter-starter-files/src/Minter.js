@@ -1,9 +1,9 @@
-import 'dotenv/config';
 import { useEffect, useState } from 'react';
 import {
 	connectWallet,
 	getCurrentWalletConnected,
 	installMetamask,
+	mintNFT,
 } from './utils/interact';
 
 const Minter = (props) => {
@@ -14,12 +14,15 @@ const Minter = (props) => {
 	const [description, setDescription] = useState('');
 	const [url, setURL] = useState('');
 
-	useEffect(async () => {
-		const { address, status } = await getCurrentWalletConnected();
-		setWallet(address);
-		setStatus(status);
+	useEffect(() => {
+		async function fetchData() {
+			const { address, status } = await getCurrentWalletConnected();
+			setWallet(address);
+			setStatus(status);
 
-		addWalletListener();
+			addWalletListener();
+		}
+		fetchData();
 	}, []);
 
 	const connectWalletPressed = async () => {
@@ -29,7 +32,8 @@ const Minter = (props) => {
 	};
 
 	const onMintPressed = async () => {
-		//TODO: implement
+		const { status } = await mintNFT(url, name, description);
+		setStatus(status);
 	};
 
 	function addWalletListener() {
